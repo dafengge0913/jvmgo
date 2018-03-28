@@ -65,7 +65,7 @@ func (cp *Classpath) ReadClass(className string) ([]byte, Entry, error) {
 	if data, entry, err := cp.extClasspath.readClass(className); err == nil {
 		return data, entry, err
 	}
-	return cp.extClasspath.readClass(className)
+	return cp.userClasspath.readClass(className)
 }
 
 func (cp *Classpath) String() string {
