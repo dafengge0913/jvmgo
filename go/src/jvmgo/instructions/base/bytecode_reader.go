@@ -37,3 +37,19 @@ func (reader *BytecodeReader) ReadInt32() int32 {
 	byte4 := int32(reader.ReadUint8())
 	return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4
 }
+
+// tableswitch指令操作码的后面有0~3字节的padding
+// 以保证defaultOffset在字节码中的地址是4的倍数
+func (reader *BytecodeReader) SkipPadding() {
+	for reader.pc%4 != 0 {
+		reader.ReadUint8()
+	}
+}
+
+func (reader *BytecodeReader) ReadInt32s(n int32) []int32 {
+	ints := make([]int32, n)
+	for i := range ints {
+		ints[i] = reader.ReadInt32()
+	}
+	return ints
+}
