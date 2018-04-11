@@ -1,24 +1,24 @@
 package rtda
 
 type Thread struct {
-	pc int
-	statck *Stack
+	pc    int
+	stack *Stack
 }
 
 func NewThread() *Thread  {
 	return &Thread{
-		statck:newStack(1024),
+		stack: newStack(1024),
 	}
 }
 
 func (t *Thread) PushFrame(frame *Frame)  {
-	t.statck.push(frame)
+	t.stack.push(frame)
 }
 
 func (t *Thread) PopFrame()*Frame  {
-	return t.statck.pop()
+	return t.stack.pop()
 }
 
 func (t *Thread) CurrentFrame() *Frame {
-	return t.statck.top()
+	return t.stack.top()
 }
