@@ -27,3 +27,39 @@ func (method *Method) copyAttributes(cfMethod *classfile.MemberInfo) {
 		method.code = codeAttr.Code()
 	}
 }
+
+func (method *Method) IsSynchronized() bool {
+	return 0 != method.accessFlags&ACC_SYNCHRONIZED
+}
+
+func (method *Method) IsBridge() bool {
+	return 0 != method.accessFlags&ACC_BRIDGE
+}
+
+func (method *Method) IsVarargs() bool {
+	return 0 != method.accessFlags&ACC_VARARGS
+}
+
+func (method *Method) IsNative() bool {
+	return 0 != method.accessFlags&ACC_NATIVE
+}
+
+func (method *Method) IsAbstract() bool {
+	return 0 != method.accessFlags&ACC_ABSTRACT
+}
+
+func (method *Method) IsStrict() bool {
+	return 0 != method.accessFlags&ACC_STRICT
+}
+
+func (method *Method) MaxStack() uint {
+	return method.maxStack
+}
+
+func (method *Method) MaxLocals() uint {
+	return method.maxLocals
+}
+
+func (method *Method) Code() []byte {
+	return method.code
+}

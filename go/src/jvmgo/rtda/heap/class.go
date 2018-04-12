@@ -34,6 +34,10 @@ func newClass(cf *classfile.ClassFile) *Class {
 	return class
 }
 
+func (class *Class) NewObject() *Object {
+	return newObject(class)
+}
+
 func (class *Class) IsPublic() bool {
 	return 0 != class.accessFlags&ACC_PUBLIC
 }
@@ -75,4 +79,12 @@ func (class *Class) getPackageName() string {
 		return class.name[:i]
 	}
 	return ""
+}
+
+func (class *Class) ConstantPool() *ConstantPool {
+	return class.constantPool
+}
+
+func (class *Class) StaticVars() Slots {
+	return class.staticVars
 }
