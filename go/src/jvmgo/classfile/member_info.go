@@ -44,9 +44,8 @@ func (mi *MemberInfo) Name() string {
 	return mi.cp.getUtf8(mi.nameIndex)
 }
 
-
-// (1) 基本类型byte short char int long float和double的描述符是单个字母
-//     分别对应B S C I J F和D 注意 long的描述符是J而不是L
+// (1) 基本类型 boolean byte short char int long float和double的描述符是单个字母
+//     分别对应 Z B S C I J F和D 注意 long的描述符是J而不是L
 // (2) 引用类型的描述符是L＋类的完全限定名＋分号
 // (3) 数组类型的描述符是[＋数组元素类型描述符
 // (4) 字段描述符就是字段类型的描述符
