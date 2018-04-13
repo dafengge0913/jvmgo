@@ -11,3 +11,11 @@ func newObject(class *Class) *Object {
 		fields: newSlots(class.instanceSlotCount),
 	}
 }
+
+func (obj *Object) Class() *Class {
+	return obj.class
+}
+
+func (obj *Object) Fields() Slots {
+	return obj.fields
+}
