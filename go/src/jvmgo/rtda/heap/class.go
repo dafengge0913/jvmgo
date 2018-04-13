@@ -88,3 +88,16 @@ func (class *Class) ConstantPool() *ConstantPool {
 func (class *Class) StaticVars() Slots {
 	return class.staticVars
 }
+
+func (class *Class) GetMainMethod() *Method {
+	return class.getStaticMethod("main", "([Ljava/lang/String;)V")
+}
+
+func (class *Class) getStaticMethod(name string, descriptor string) *Method {
+	for _, method := range class.methods {
+		if method.IsStatic() && method.name == name && method.descriptor == descriptor {
+			return method
+		}
+	}
+	return nil
+}
