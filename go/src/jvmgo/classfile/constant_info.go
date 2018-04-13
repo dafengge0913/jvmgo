@@ -1,6 +1,5 @@
 package classfile
 
-
 // 常量结构
 //
 // cp_info {
@@ -40,15 +39,15 @@ func readConstantInfo(reader *ClassReader, cp ConstantPool) ConstantInfo {
 func newConstantInfo(tag uint8, cp ConstantPool) ConstantInfo {
 	switch tag {
 	case CONSTANT_Class:
-		return &ConstantClassInfo{}
+		return &ConstantClassInfo{cp: cp}
 	case CONSTANT_Fieldref:
-		return &ConstantFieldRefInfo{}
+		return &ConstantFieldRefInfo{ConstantMemberRefInfo{cp: cp}}
 	case CONSTANT_Methodref:
-		return &ConstantMethodRefInfo{}
+		return &ConstantMethodRefInfo{ConstantMemberRefInfo{cp: cp}}
 	case CONSTANT_InterfaceMethodref:
-		return &ConstantInterfaceMethodRefInfo{}
+		return &ConstantInterfaceMethodRefInfo{ConstantMemberRefInfo{cp: cp}}
 	case CONSTANT_String:
-		return &ConstantStringInfo{}
+		return &ConstantStringInfo{cp: cp}
 	case CONSTANT_Integer:
 		return &ConstantIntegerInfo{}
 	case CONSTANT_Float:
