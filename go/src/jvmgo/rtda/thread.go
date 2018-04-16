@@ -25,6 +25,10 @@ func (t *Thread) CurrentFrame() *Frame {
 	return t.stack.top()
 }
 
+func (t *Thread) TopFrame() *Frame {
+	return t.stack.top()
+}
+
 func (t *Thread) NewFrame(method *heap.Method) *Frame {
 	return newFrame(t, method)
 }
