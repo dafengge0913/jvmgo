@@ -40,3 +40,7 @@ func (t *Thread) PC() int {
 func (t *Thread) SetPC(pc int) {
 	t.pc = pc
 }
+
+func (t *Thread) IsStackEmpty() bool {
+	return t.stack.isEmpty()
+}
