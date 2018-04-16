@@ -24,8 +24,28 @@ func (cl *ClassLoader) LoadClass(name string) *Class {
 	if class, ok := cl.classMap[name]; ok {
 		return class
 	}
+	if name[0] == '[' {
+		return cl.loadArrayClass(name)
+	}
 	return cl.loadNonArrayClass(name)
 }
+
+func (cl *ClassLoader) loadArrayClass(name string) *Class {
+	class := &Class{
+		accessFlags: ACC_PUBLIC, // todo
+		name:        name,
+		loader:      cl,
+		initStarted: true, // 数组类不需要初始化
+		superClass:  cl.LoadClass("java/lang/Object"),
+		interfaces: []*Class{
+			cl.LoadClass("java/lang/Cloneable"),
+			cl.LoadClass("java/io/Serializable"),
+		},
+	}
+	cl.classMap[name] = class
+	return class
+}
+
 func (cl *ClassLoader) loadNonArrayClass(name string) *Class {
 	data, entry := cl.readClass(name)
 	class := cl.defineClass(data)
