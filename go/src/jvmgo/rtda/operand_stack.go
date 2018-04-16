@@ -34,6 +34,7 @@ func (os *OperandStack) PushFloat(val float32) {
 	os.slots[os.size].num = int32(bits)
 	os.size++
 }
+
 func (os *OperandStack) PopFloat() float32 {
 	os.size--
 	bits := uint32(os.slots[os.size].num)
@@ -57,6 +58,7 @@ func (os *OperandStack) PushDouble(val float64) {
 	bits := math.Float64bits(val)
 	os.PushLong(int64(bits))
 }
+
 func (os *OperandStack) PopDouble() float64 {
 	bits := uint64(os.PopLong())
 	return math.Float64frombits(bits)
@@ -82,4 +84,8 @@ func (os *OperandStack) PushSlot(slot Slot) {
 func (os *OperandStack) PopSlot() Slot {
 	os.size--
 	return os.slots[os.size]
+}
+
+func (os *OperandStack) GetRefFromTop(n uint) *heap.Object {
+	return os.slots[os.size-1-n].ref
 }

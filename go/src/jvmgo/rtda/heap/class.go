@@ -71,10 +71,10 @@ func (class *Class) IsEnum() bool {
 }
 
 func (class *Class) isAccessibleTo(other *Class) bool {
-	return class.IsPublic() || class.getPackageName() == other.getPackageName()
+	return class.IsPublic() || class.GetPackageName() == other.GetPackageName()
 }
 
-func (class *Class) getPackageName() string {
+func (class *Class) GetPackageName() string {
 	if i := strings.LastIndex(class.name, "/"); i > 0 {
 		return class.name[:i]
 	}
@@ -87,6 +87,22 @@ func (class *Class) ConstantPool() *ConstantPool {
 
 func (class *Class) StaticVars() Slots {
 	return class.staticVars
+}
+
+func (class *Class) Name() string {
+	return class.name
+}
+
+func (class *Class) Fields() []*Field {
+	return class.fields
+}
+
+func (class *Class) Methods() []*Method {
+	return class.methods
+}
+
+func (class *Class) SuperClass() *Class {
+	return class.superClass
 }
 
 func (class *Class) GetMainMethod() *Method {
