@@ -3,6 +3,7 @@ package constants
 import (
 	"jvmgo/instructions/base"
 	"jvmgo/rtda"
+	"jvmgo/rtda/heap"
 )
 
 // ldc系列指令从运行时常量池中加载常量值 并把它推入操作数栈
@@ -25,13 +26,16 @@ func (ins *LDC_W) Execute(frame *rtda.Frame) {
 
 func _ldc(frame *rtda.Frame, index uint) {
 	stack := frame.OperandStack()
-	cp := frame.Method().Class().ConstantPool()
-	c := cp.GetConstant(index)
+	class := frame.Method().Class()
+	c := class.ConstantPool().GetConstant(index)
 	switch c.(type) {
 	case int32:
 		stack.PushInt(c.(int32))
 	case float32:
 		stack.PushFloat(c.(float32))
+	case string:
+		internedStr := heap.JString(class.Loader(), c.(string))
+		stack.PushRef(internedStr)
 	default:
 		panic("todo: ldc: ")
 	}
@@ -43,8 +47,8 @@ type LDC2_W struct {
 
 func (ins *LDC2_W) Execute(frame *rtda.Frame) {
 	stack := frame.OperandStack()
-	cp := frame.Method().Class().ConstantPool()
-	c := cp.GetConstant(ins.Index)
+	class := frame.Method().Class()
+	c := class.ConstantPool().GetConstant(ins.Index)
 	switch c.(type) {
 	case int64:
 		stack.PushLong(c.(int64))

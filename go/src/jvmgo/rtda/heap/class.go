@@ -151,3 +151,14 @@ func (class *Class) isJlCloneable() bool {
 func (class *Class) isJioSerializable() bool {
 	return class.name == "java/io/Serializable"
 }
+
+func (class *Class) getField(name, descriptor string, isStatic bool) *Field {
+	for c := class; c != nil; c = c.superClass {
+		for _, field := range c.fields {
+			if field.IsStatic() == isStatic && field.name == name && field.descriptor == descriptor {
+				return field
+			}
+		}
+	}
+	return nil
+}
