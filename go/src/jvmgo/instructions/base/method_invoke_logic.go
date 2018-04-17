@@ -3,7 +3,6 @@ package base
 import (
 	"jvmgo/rtda"
 	"jvmgo/rtda/heap"
-	"fmt"
 )
 
 func InvokeMethod(invokerFrame *rtda.Frame, method *heap.Method) {
@@ -17,15 +16,4 @@ func InvokeMethod(invokerFrame *rtda.Frame, method *heap.Method) {
 			newFrame.LocalVars().SetSlot(uint(i), slot)
 		}
 	}
-
-	// native 方法尚未实现
-	if method.IsNative() {
-		if method.Name() == "registerNatives" {
-			thread.PopFrame()
-		} else {
-			panic(fmt.Sprintf("native method: %v.%v%v\n",
-				method.Class().Name(), method.Name(), method.Descriptor()))
-		}
-	}
 }
-

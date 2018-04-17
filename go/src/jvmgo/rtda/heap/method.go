@@ -15,13 +15,42 @@ type Method struct {
 func newMethods(class *Class, cfMethods []*classfile.MemberInfo) []*Method {
 	methods := make([]*Method, len(cfMethods))
 	for i, cfMethod := range cfMethods {
-		methods[i] = &Method{}
-		methods[i].class = class
-		methods[i].copyMemberInfo(cfMethod)
-		methods[i].copyAttributes(cfMethod)
-		methods[i].calArgSlotCount()
+		methods[i] = newMethod(class, cfMethod)
 	}
 	return methods
+}
+
+func newMethod(class *Class, cfMethod *classfile.MemberInfo) *Method {
+	method := &Method{}
+	method.class = class
+	method.copyMemberInfo(cfMethod)
+	method.copyAttributes(cfMethod)
+	md := parseMethodDescriptor(method.descriptor)
+	method.calArgSlotCount(md.parameterTypes)
+	if method.IsNative() {
+		method.injectCodeAttribute(md.returnType)
+	}
+	return method
+}
+func (method *Method) injectCodeAttribute(returnType string) {
+	method.maxStack = 4
+	method.maxLocals = method.argSlotCount
+	// 虚拟机规范并没有规定如何实现和调用本地方法
+	// 使用 0xfe 保留指令 实现本地方法调用
+	switch returnType[0] {
+	case 'V':
+		method.code = []byte{0xfe, 0xb1} // return
+	case 'D':
+		method.code = []byte{0xfe, 0xaf} // dreturn
+	case 'F':
+		method.code = []byte{0xfe, 0xae} // freturn
+	case 'J':
+		method.code = []byte{0xfe, 0xad} // lreturn
+	case 'L', '[':
+		method.code = []byte{0xfe, 0xb0} // areturn
+	default:
+		method.code = []byte{0xfe, 0xac} // ireturn
+	}
 }
 
 func (method *Method) copyAttributes(cfMethod *classfile.MemberInfo) {
@@ -32,9 +61,8 @@ func (method *Method) copyAttributes(cfMethod *classfile.MemberInfo) {
 	}
 }
 
-func (method *Method) calArgSlotCount() {
-	parsedDescriptor := parseMethodDescriptor(method.descriptor)
-	for _, paramType := range parsedDescriptor.parameterTypes {
+func (method *Method) calArgSlotCount(paramTypes []string) {
+	for _, paramType := range paramTypes {
 		method.argSlotCount++
 		if paramType == "J" || paramType == "D" {
 			method.argSlotCount++
