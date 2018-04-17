@@ -102,6 +102,10 @@ func (class *Class) Methods() []*Method {
 	return class.methods
 }
 
+func (class *Class) Loader() *ClassLoader {
+	return class.loader
+}
+
 func (class *Class) SuperClass() *Class {
 	return class.superClass
 }
@@ -129,4 +133,21 @@ func (class *Class) StartInit() {
 
 func (class *Class) GetClinitMethod() *Method {
 	return class.getStaticMethod("<clinit>", "()V")
+}
+
+func (class *Class) ArrayClass() *Class {
+	arrayClassName := getArrayClassName(class.name)
+	return class.loader.LoadClass(arrayClassName)
+}
+
+func (class *Class) isJlObject() bool {
+	return class.name == "java/lang/Object"
+}
+
+func (class *Class) isJlCloneable() bool {
+	return class.name == "java/lang/Cloneable"
+}
+
+func (class *Class) isJioSerializable() bool {
+	return class.name == "java/io/Serializable"
 }

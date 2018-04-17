@@ -29,3 +29,8 @@ func (class *Class) NewArray(count uint) *Object {
 func (class *Class) IsArray() bool {
 	return class.name[0] == '['
 }
+
+func (class *Class) ComponentClass() *Class {
+	componentClassName := getComponentClassName(class.name)
+	return class.loader.LoadClass(componentClassName)
+}
