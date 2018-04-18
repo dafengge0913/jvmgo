@@ -13,21 +13,61 @@ type ClassLoader struct {
 }
 
 func NewClassLoader(cp *classpath.Classpath, verboseFlag bool) *ClassLoader {
-	return &ClassLoader{
+	loader := &ClassLoader{
 		cp:          cp,
 		classMap:    make(map[string]*Class),
 		verboseFlag: verboseFlag,
 	}
+	loader.loadBasicClasses()
+	loader.loadPrimitiveClasses()
+	return loader
+}
+
+func (cl *ClassLoader) loadBasicClasses() {
+	jlClassClass := cl.LoadClass("java/lang/Class")
+	// 加载java.lang.Class类 会触发 java.lang.Object等类和接口的加载
+	// 给已经加载的每一个类关联类对象
+	for _, class := range cl.classMap {
+		if class.jClass == nil {
+			class.jClass = jlClassClass.NewObject()
+			class.jClass.extra = class
+		}
+	}
+}
+
+func (cl *ClassLoader) loadPrimitiveClasses() {
+	for primitiveType := range primitiveTypes {
+		cl.loadPrimitiveClass(primitiveType)
+	}
+}
+
+func (cl *ClassLoader) loadPrimitiveClass(className string) {
+	class := &Class{
+		accessFlags: ACC_PUBLIC,
+		name:        className,
+		loader:      cl,
+		initStarted: true,
+	}
+	class.jClass = cl.classMap["java/lang/Class"].NewObject()
+	class.jClass.extra = class
+	cl.classMap[className] = class
 }
 
 func (cl *ClassLoader) LoadClass(name string) *Class {
 	if class, ok := cl.classMap[name]; ok {
 		return class
 	}
+	var class *Class
 	if name[0] == '[' {
-		return cl.loadArrayClass(name)
+		class = cl.loadArrayClass(name)
+	} else {
+		class = cl.loadNonArrayClass(name)
 	}
-	return cl.loadNonArrayClass(name)
+	if jlClassClass, ok := cl.classMap["java/lang/Class"]; ok {
+		class.jClass = jlClassClass.NewObject()
+		class.jClass.extra = class
+	}
+	return class
 }
 
 func (cl *ClassLoader) loadArrayClass(name string) *Class {

@@ -20,6 +20,7 @@ type Class struct {
 	staticSlotCount   uint
 	staticVars        Slots
 	initStarted       bool
+	jClass            *Object // class对象
 }
 
 func newClass(cf *classfile.ClassFile) *Class {
@@ -110,6 +111,10 @@ func (class *Class) SuperClass() *Class {
 	return class.superClass
 }
 
+func (class *Class) JClass() *Object {
+	return class.jClass
+}
+
 func (class *Class) GetMainMethod() *Method {
 	return class.getStaticMethod("main", "([Ljava/lang/String;)V")
 }
@@ -161,4 +166,8 @@ func (class *Class) getField(name, descriptor string, isStatic bool) *Field {
 		}
 	}
 	return nil
+}
+
+func (class *Class) JavaName() string {
+	return strings.Replace(class.name, "/", ".", -1)
 }
