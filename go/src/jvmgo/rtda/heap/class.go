@@ -171,3 +171,8 @@ func (class *Class) getField(name, descriptor string, isStatic bool) *Field {
 func (class *Class) JavaName() string {
 	return strings.Replace(class.name, "/", ".", -1)
 }
+
+func (class *Class) IsPrimitive() bool {
+	_, ok := primitiveTypes[class.name]
+	return ok
+}
