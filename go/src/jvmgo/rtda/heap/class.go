@@ -119,10 +119,23 @@ func (class *Class) GetMainMethod() *Method {
 	return class.getStaticMethod("main", "([Ljava/lang/String;)V")
 }
 
+func (class *Class) GetInstanceMethod(name, descriptor string) *Method {
+	return class.getMethod(name, descriptor, false)
+}
+
 func (class *Class) getStaticMethod(name string, descriptor string) *Method {
-	for _, method := range class.methods {
-		if method.IsStatic() && method.name == name && method.descriptor == descriptor {
-			return method
+	return class.getMethod(name, descriptor, true)
+}
+
+func (class *Class) getMethod(name, descriptor string, isStatic bool) *Method {
+	for c := class; c != nil; c = c.superClass {
+		for _, method := range c.methods {
+			if method.IsStatic() == isStatic &&
+				method.name == name &&
+				method.descriptor == descriptor {
+
+				return method
+			}
 		}
 	}
 	return nil
@@ -175,4 +188,14 @@ func (class *Class) JavaName() string {
 func (class *Class) IsPrimitive() bool {
 	_, ok := primitiveTypes[class.name]
 	return ok
+}
+
+func (class *Class) GetRefVar(fieldName, fieldDescriptor string) *Object {
+	field := class.getField(fieldName, fieldDescriptor, true)
+	return class.staticVars.GetRef(field.slotId)
+}
+
+func (class *Class) SetRefVar(fieldName, fieldDescriptor string, ref *Object) {
+	field := class.getField(fieldName, fieldDescriptor, true)
+	class.staticVars.SetRef(field.slotId, ref)
 }
