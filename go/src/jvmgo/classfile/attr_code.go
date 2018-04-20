@@ -34,6 +34,22 @@ type ExceptionTableEntry struct {
 	catchType uint16
 }
 
+func (entry *ExceptionTableEntry) StartPc() uint16 {
+	return entry.startPc
+}
+
+func (entry *ExceptionTableEntry) EndPc() uint16 {
+	return entry.endPc
+}
+
+func (entry *ExceptionTableEntry) HandlerPc() uint16 {
+	return entry.handlerPc
+}
+
+func (entry *ExceptionTableEntry) CatchType() uint16 {
+	return entry.catchType
+}
+
 func (attr *CodeAttribute) readInfo(reader *ClassReader) {
 	attr.maxStack = reader.readUint16()
 	attr.maxLocals = reader.readUint16()
@@ -60,10 +76,25 @@ func readExceptionTable(reader *ClassReader) []*ExceptionTableEntry {
 func (attr *CodeAttribute) MaxStack() uint16 {
 	return attr.maxStack
 }
+
 func (attr *CodeAttribute) MaxLocals() uint16 {
 	return attr.maxLocals
 }
 
 func (attr *CodeAttribute) Code() []byte {
 	return attr.code
+}
+
+func (attr *CodeAttribute) ExceptionTable() []*ExceptionTableEntry {
+	return attr.exceptionTable
+}
+
+func (attr *CodeAttribute) LineNumberTableAttribute() *LineNumberTableAttribute {
+	for _, attrInfo := range attr.attributes {
+		switch attrInfo.(type) {
+		case *LineNumberTableAttribute:
+			return attrInfo.(*LineNumberTableAttribute)
+		}
+	}
+	return nil
 }

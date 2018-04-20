@@ -21,6 +21,7 @@ type Class struct {
 	staticVars        Slots
 	initStarted       bool
 	jClass            *Object // class对象
+	sourceFile        string
 }
 
 func newClass(cf *classfile.ClassFile) *Class {
@@ -33,7 +34,15 @@ func newClass(cf *classfile.ClassFile) *Class {
 	class.constantPool = newConstantPool(class, cf.ConstantPool())
 	class.fields = newFields(class, cf.Fields())
 	class.methods = newMethods(class, cf.Methods())
+	class.sourceFile = getSourceFile(cf)
 	return class
+}
+
+func getSourceFile(cf *classfile.ClassFile) string {
+	if sfAttr := cf.SourceFileAttribute(); sfAttr != nil {
+		return sfAttr.FileName()
+	}
+	return "Unknown"
 }
 
 func (class *Class) NewObject() *Object {
@@ -113,6 +122,10 @@ func (class *Class) SuperClass() *Class {
 
 func (class *Class) JClass() *Object {
 	return class.jClass
+}
+
+func (class *Class) SourceFile() string {
+	return class.sourceFile
 }
 
 func (class *Class) GetMainMethod() *Method {

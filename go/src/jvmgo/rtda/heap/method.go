@@ -6,10 +6,12 @@ import (
 
 type Method struct {
 	ClassMember
-	maxStack     uint
-	maxLocals    uint
-	code         []byte
-	argSlotCount uint
+	maxStack        uint
+	maxLocals       uint
+	code            []byte
+	argSlotCount    uint
+	exceptionTable  ExceptionTable
+	lineNumberTable *classfile.LineNumberTableAttribute
 }
 
 func newMethods(class *Class, cfMethods []*classfile.MemberInfo) []*Method {
@@ -58,6 +60,8 @@ func (method *Method) copyAttributes(cfMethod *classfile.MemberInfo) {
 		method.maxStack = uint(codeAttr.MaxStack())
 		method.maxLocals = uint(codeAttr.MaxLocals())
 		method.code = codeAttr.Code()
+		method.exceptionTable = newExceptionTable(codeAttr.ExceptionTable(), method.class.constantPool)
+		method.lineNumberTable = codeAttr.LineNumberTableAttribute()
 	}
 }
 
@@ -72,6 +76,14 @@ func (method *Method) calArgSlotCount(paramTypes []string) {
 		// 实例方法 编译器会在参数列表的前面添加一个参数 this引用
 		method.argSlotCount++
 	}
+}
+
+func (method *Method) FindExceptionHandler(exClass *Class, pc int) int {
+	handler := method.exceptionTable.findExceptionHandler(exClass, pc)
+	if handler != nil {
+		return handler.handlerPc
+	}
+	return -1
 }
 
 func (method *Method) IsSynchronized() bool {
@@ -112,4 +124,14 @@ func (method *Method) Code() []byte {
 
 func (method *Method) ArgSlotCount() uint {
 	return method.argSlotCount
+}
+
+func (method *Method) GetLineNumber(pc int) int {
+	if method.IsNative() {
+		return -2
+	}
+	if method.lineNumberTable == nil {
+		return -1
+	}
+	return method.lineNumberTable.GetLineNumber(pc)
 }

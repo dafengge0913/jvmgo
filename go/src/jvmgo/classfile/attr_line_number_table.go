@@ -29,3 +29,13 @@ func (attr *LineNumberTableAttribute) readInfo(reader *ClassReader) {
 		}
 	}
 }
+
+func (attr *LineNumberTableAttribute) GetLineNumber(pc int) int {
+	for i := len(attr.lineNumberTable) - 1; i >= 0; i-- {
+		entry := attr.lineNumberTable[i]
+		if pc >= int(entry.startPc) {
+			return int(entry.lineNumber)
+		}
+	}
+	return -1
+}
